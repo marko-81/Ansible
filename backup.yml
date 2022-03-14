@@ -1,0 +1,24 @@
+---
+- name: Backup configuration from Linux servers
+  hosts: centos
+  become: yes
+  tasks:
+    - name: Prepare remote config directory
+      copy:
+        src: /etc/httpd
+        dest: /home/ansible/
+        remote_src: yes 
+    - name: Create a zip archive of config folder
+      archive:
+        path: /etc/httpd/
+        dest: /home/ansible/httpd.zip
+        
+    - name: Backup config folder to local GIT repo
+      fetch:
+        src: /home/ansible/httpd.zip
+        dest: /home/ansible/backup/{{ inventory_hostname }}/
+        flat: yes
+        
+        
+    
+      
