@@ -1,0 +1,5 @@
+[jenkins]
+jenkinsmaster2
+
+[linux]
+centos ansible_host=192.168.119.129
