@@ -1,5 +1,5 @@
 ---
-- name: Backup configuration from Linux servers
+- name: Backup HTTP configuration from Linux servers and push it to GIT
   hosts: centos
   become: yes
   tasks:
@@ -13,7 +13,7 @@
         path: /etc/httpd/
         dest: /home/ansible/httpd.zip
         
-    - name: Backup config folder to local GIT repo
+    - name: Copy  config folder to a local GIT repo
       fetch:
         src: /home/ansible/httpd.zip
         dest: /home/ansible/backup/{{ inventory_hostname }}/
