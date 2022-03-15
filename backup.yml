@@ -1,23 +1,50 @@
 ---
-- name: Backup HTTP configuration from Linux servers and push it to GIT
+- name: BACKUP HTTPD CONFIGS FROM LINUX SERVERS
   hosts: centos
   become: yes
+  tags: backup
   tasks:
     - name: Prepare remote config directory
       copy:
         src: /etc/httpd
         dest: /home/ansible/
-        remote_src: yes 
+        remote_src: yes
+      register: prepare_output
+
     - name: Create a zip archive of config folder
       archive:
-        path: /etc/httpd/
+        path: /home/ansible/httpd/*
         dest: /home/ansible/httpd.zip
-        
+        exclude_path:
+          - /home/ansible/httpd/logs
+          - /home/ansible/httpd/modules
+          - /home/ansible/httpd/state
+          - /home/ansible/httpd/run  
+        format: zip
+      register: zip_output
+      when: prepare_output.changed
+
     - name: Copy  config folder to a local GIT repo
       fetch:
         src: /home/ansible/httpd.zip
-        dest: /home/ansible/backup/{{ inventory_hostname }}/
+        dest: /home/ansible/backup/configsBackup/{{ inventory_hostname }}/
         flat: yes
+      when: zip_output.changed
+
+- name: GIT SECTION
+  hosts: localhost
+  tags: git
+  tasks:
+    - name: Commit changes to GIT
+      shell: |
+        git add .
+        git commit -m "Config taken $(date +"%Y-%m-%d %H:%M:%S")"
+        git push
+        # Needed as git commit will fail if there are no changed files
+        exit 0
+      args:
+        chdir: "/home/ansible/backup/configsBackup/"
+
         
         
     
