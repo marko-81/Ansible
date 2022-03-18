@@ -24,7 +24,7 @@
       register: zip_output
       when: prepare_output.changed
 
-    - name: Copy  config folder to a local GIT repo
+    - name: Copy config folder to a local GIT repo
       fetch:
         src: /home/ansible/httpd.zip
         dest: /home/ansible/backup/configsBackup/{{ inventory_hostname }}/

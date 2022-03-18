@@ -1,0 +1,37 @@
+---
+- name: BACKUP HTTPD CONFIGS FROM LINUX SERVERS
+  hosts: centos
+  become: yes
+  tags: backup
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Prepare remote config directory
+      synchronize:
+        mode: pull
+        src: /etc/httpd
+        dest: /home/ansible/backup/configsBackup/{{ inventory_hostname }}
+        rsync_opts: 
+          - "-az" 
+          - "--delete"
+      register: prepare_output
+
+
+- name: GIT SECTION
+  hosts: localhost
+  tags: git
+  tasks:
+    - name: Commit changes to GIT
+      shell: |
+        git add .
+        git commit -m "Config taken $(date +"%Y-%m-%d %H:%M:%S")"
+        git push
+        # Needed as git commit will fail if there are no changed files
+        exit 0
+      args:
+        chdir: "/home/ansible/backup/configsBackup/"
+
+        
+        
+    
+      
